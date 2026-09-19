@@ -124,6 +124,17 @@ A playlist details page must show:
 
 The system must enforce authorization on the server for every playlist read and write operation. Client-side controls must not be treated as security boundaries.
 
+### FR-011: User Movie Preferences and Ratings
+
+Signed-in users must be able to maintain their personal preference and viewing status for movies:
+
+- Mark a movie as liked or not liked.
+- Mark a movie as viewed or not viewed.
+- Give a viewed movie a personal five-star rating from 0.5 to 5 stars in 0.5-star increments.
+- Update or remove their own like, viewed status, and rating at any time.
+
+Ratings and viewing status must be private to the user unless the product explicitly exposes them through a future social feature. A user must not be able to change another user's preferences or ratings.
+
 ## 5. MVP Screens
 
 - Landing or public discovery page
@@ -144,9 +155,11 @@ The initial data model should support at least:
 - Playlist
 - PlaylistMovie
 - PlaylistContributor
+- UserMoviePreference, including user, movie, liked status, viewed status, personal rating, and timestamps
 - Shareable playlist identifier or slug
 
 A `PlaylistMovie` record should preserve playlist order, the user who added the movie, and timestamps.
+User movie preferences should be unique per user and movie. A personal rating should be nullable and valid only in the range 0.5 to 5.0, using 0.5 increments. A rating should normally require the movie to be marked as viewed.
 
 ## 7. Non-Functional Requirements
 
@@ -175,6 +188,7 @@ A `PlaylistMovie` record should preserve playlist order, the user who added the 
 - Collaborative voting or movie ranking.
 - Import from existing watchlists.
 - Integrations with streaming services.
-- Activity feed and recommendation algorithm.
+- A recommendation engine that uses each user's likes, viewed status, and half-star ratings to suggest movies matching their taste.
+- Activity feed.
 - Real-time collaborative updates.
 - Playlist version history and moderation tools.
