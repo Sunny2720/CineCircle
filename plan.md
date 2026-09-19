@@ -4,7 +4,35 @@
 
 Build CineCircle as a responsive social movie playlist application. The implementation should establish a replaceable movie-provider boundary, use TMDB initially for catalog metadata and images, use YouTube embeds for trailers, enforce authorization on the server, and keep user movie preferences private by default.
 
-This plan assumes a new application will be scaffolded in this repository. The framework, database, hosting platform, and authentication provider are implementation decisions to finalize during Phase 1. No provider API key or user secret should be committed to the repository.
+This plan assumes a new application will be scaffolded in this repository. The recommended baseline stack is recorded below and should be validated during Phase 1. No provider API key or user secret should be committed to the repository.
+
+## Recommended Technical Stack
+
+- **Application:** Next.js with TypeScript, using the App Router for public pages, authenticated screens, server route handlers, and server actions.
+- **Database:** PostgreSQL through Supabase, with SQL migrations and indexes owned by the repository.
+- **Authentication:** Supabase Auth for sign-up, sign-in, sign-out, recovery, and session management.
+- **Authorization:** PostgreSQL Row Level Security combined with server-side authorization checks for every playlist and preference operation.
+- **File storage:** Supabase Storage for user-uploaded playlist cover images.
+- **Validation:** Zod at API and server-action boundaries.
+- **Styling:** Tailwind CSS with accessible component primitives.
+- **Movie catalog:** TMDB accessed only from Next.js server routes through a provider adapter.
+- **Trailers:** YouTube official embedded player using trailer IDs returned by TMDB.
+- **Testing:** Vitest for domain and provider logic; Playwright for responsive browser workflows.
+- **Deployment:** Vercel for the Next.js application and Supabase managed services for database, authentication, and storage.
+- **CI:** GitHub Actions for linting, type checking, unit tests, migrations, and browser tests.
+
+### Runtime Boundary
+
+```text
+Browser -> Next.js UI -> Next.js server routes/actions
+							  |-> Supabase Auth
+							  |-> PostgreSQL + Row Level Security
+							  |-> Supabase Storage
+							  |-> TMDB provider adapter
+							  |-> YouTube embedded player
+```
+
+The recommendation engine should initially be a transparent TypeScript/PostgreSQL scoring system using genres, likes, viewed status, and half-star ratings. Do not introduce machine learning, vector search, Redis, microservices, or Kubernetes until measured usage justifies the additional operational complexity. TMDB content must not be used to train recommendation models.
 
 ## Guiding Constraints
 
@@ -16,12 +44,14 @@ This plan assumes a new application will be scaffolded in this repository. The f
 - Ratings are nullable, range from 0.5 to 5.0, and use 0.5 increments.
 - Missing posters, backdrops, metadata, or trailers must not prevent a movie from being added.
 - All list and search experiences must support pagination or lazy loading.
+- Supabase Row Level Security is defense in depth; server-side authorization remains mandatory.
+- API credentials remain in Vercel/Supabase environment secrets and are never bundled into browser code.
 
 ## Phase 1: Project and Architecture Setup
 
 ### 1.1 Finalize the technical stack
 
-Choose the frontend framework, backend/API approach, relational database, migration tool, authentication provider, object storage strategy for user-uploaded cover images, test framework, and deployment target.
+Adopt the recommended stack above unless a documented constraint requires a change. Create the Next.js TypeScript application, connect Supabase locally and in development, configure SQL migrations, and record any deviations in an architecture decision record.
 
 Outputs:
 
