@@ -87,6 +87,8 @@ Users must be able to search for movies and add a selected movie to a playlist. 
 
 The same movie should not be added to the same playlist more than once.
 
+Movie search and metadata should be powered by the selected movie data provider, initially TMDB. The application should use the provider's stable movie identifier when storing a movie and should not create duplicate movie records for the same provider identifier.
+
 ### FR-005: Organize Playlist Movies
 
 Playlist owners must be able to remove movies and change their order. The playlist must preserve the selected order for all viewers.
@@ -135,6 +137,20 @@ Signed-in users must be able to maintain their personal preference and viewing s
 
 Ratings and viewing status must be private to the user unless the product explicitly exposes them through a future social feature. A user must not be able to change another user's preferences or ratings.
 
+### FR-012: Movie Catalog and Trailer Integration
+
+The application must integrate with TMDB for movie catalog data and must:
+
+- Search and paginate movie results through the TMDB API.
+- Retrieve movie titles, descriptions, release dates or years, genres, ratings, poster paths, and backdrop paths when available.
+- Retrieve and store an optional IMDb identifier for cross-reference.
+- Retrieve an optional YouTube trailer identifier from the movie's video results.
+- Open trailers using the YouTube embedded player without downloading or re-hosting the video.
+- Show a clear fallback state when a movie has no poster, thumbnail, or trailer.
+- Keep TMDB and YouTube credentials on the server and never expose them in client-side code.
+
+The integration must support replacing TMDB with another provider in the future without changing playlist, preference, or rating ownership semantics.
+
 ## 5. MVP Screens
 
 - Landing or public discovery page
@@ -144,6 +160,7 @@ Ratings and viewing status must be private to the user unless the product explic
 - Playlist details page
 - Edit playlist page
 - Movie search and add flow
+- Movie details and trailer view
 - Collaboration and contributor management controls
 
 ## 6. Data Model
@@ -156,10 +173,12 @@ The initial data model should support at least:
 - PlaylistMovie
 - PlaylistContributor
 - UserMoviePreference, including user, movie, liked status, viewed status, personal rating, and timestamps
+- MovieProviderReference, including provider name, provider movie identifier, optional IMDb identifier, metadata timestamps, poster and backdrop paths, and optional YouTube trailer identifier
 - Shareable playlist identifier or slug
 
 A `PlaylistMovie` record should preserve playlist order, the user who added the movie, and timestamps.
 User movie preferences should be unique per user and movie. A personal rating should be nullable and valid only in the range 0.5 to 5.0, using 0.5 increments. A rating should normally require the movie to be marked as viewed.
+Movie provider identifiers should be unique per provider. Provider metadata should be refreshable, and missing images or trailers must be supported without preventing a movie from being added.
 
 ## 7. Non-Functional Requirements
 
@@ -170,6 +189,9 @@ User movie preferences should be unique per user and movie. A personal rating sh
 - Validate and authorize all user-controlled input on the server.
 - Use pagination or lazy loading for large public playlist and movie results.
 - Keep movie data attribution and API usage compliant with the selected movie data provider.
+- Display required TMDB attribution when TMDB data or images are used.
+- Treat TMDB data as provider content: do not use it to train recommendation models, do not cache it longer than the provider permits, and obtain a commercial agreement before monetizing an application that uses TMDB content.
+- Follow YouTube API and embedded-player terms when displaying trailers, including preserving YouTube branding and player controls.
 
 ## 8. MVP Success Criteria
 
@@ -179,6 +201,7 @@ User movie preferences should be unique per user and movie. A personal rating sh
 - An owner can enable contributions and another signed-in user can add a movie.
 - Unauthorized users cannot view or modify private playlists.
 - The owner can remove contributors, remove movies, reorder movies, and disable contributions.
+- Users can search TMDB movies, add a result to a playlist, view its poster when available, and open its YouTube trailer when available.
 - Public playlist content remains usable on mobile and desktop.
 
 ## 9. Future Enhancements
