@@ -193,7 +193,7 @@ Add dashboard filters for liked, viewed, and unrated movies. Verify that prefere
 
 Requirements: FR-011, FR-010.
 
-## Phase 7: Recommendation Engine
+## Phase 7: Recommendations and AI Movie Suggestions
 
 ### 7.1 Define recommendation inputs and privacy rules
 
@@ -207,7 +207,17 @@ Start with a transparent content-based approach using genres and other licensed 
 
 Requirements: Future recommendation enhancement, NFR pagination and privacy requirements.
 
-### 7.3 Add recommendation quality telemetry
+### 7.3 Add an optional AI movie-suggestion assistant
+
+Add an opt-in assistant that can help users turn a natural-language request—such as a mood, theme, event, group preference, genre, runtime, or content constraint—into an editable playlist title, description, and a small set of suggested TMDB search queries. The assistant must not directly create playlists, add movies, or claim a movie is available; users review and confirm all resulting changes, and TMDB remains the source of truth for movie metadata and search results.
+
+Implement the integration behind a server-side provider boundary using the OpenAI Responses API with the explicit `gpt-6-astra` model. Return a Zod-validated structured response, begin with `reasoning.effort: "low"`, and keep the OpenAI credential in a server-only environment variable. Send only the minimum user-authorized playlist context and preference data needed for a request. Do not expose another user's private preferences, send secrets, or use TMDB content to train a model.
+
+Add a feature flag, rate limits, request-size limits, timeout/error fallbacks, and a manual playlist-creation path. Validate generated search queries and all selected TMDB results before displaying or persisting them. Create an evaluation set covering ambiguous prompts, group requests, privacy boundaries, schema validity, and factual-grounding failures; measure useful suggestions, structured-output validity, latency, token use, and cost per accepted suggestion.
+
+Requirements: Future AI movie-suggestion enhancement, FR-004, FR-010, FR-011, FR-012, NFR provider compliance.
+
+### 7.4 Add recommendation quality telemetry
 
 Measure impressions, dismissals, saves/additions, and optional feedback without exposing private preference data. Add feature flags and a fallback to popular or curated public movies when a user has insufficient preference history.
 

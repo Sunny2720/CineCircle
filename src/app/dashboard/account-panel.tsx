@@ -1,0 +1,25 @@
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/browser";
+
+type Account = { email: string; username: string; fullName: string; avatarUrl: string };
+
+export default function AccountPanel() {
+  const router = useRouter();
+  const [account, setAccount] = useState<Account | null>(null);
+  const [username, setUsername] = useState("");
+  const [usernameAvailability, setUsernameAvailability] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { fetch("/api/account").then(async (response) => { const payload = await response.json(); if (!response.ok) throw new Error(payload.error); setAccount(payload.account); setUsername(payload.account.username); }).catch((error: unknown) => setMessage(error instanceof Error ? error.message : "Could not load your account.")); }, []);
+  const normalizedUsername = username.trim().toLowerCase();
+  const usernameState = !account || normalizedUsername === account.username ? "idle" : !/^[a-z0-9][a-z0-9-]{2,29}$/.test(normalizedUsername) ? "taken" : usernameAvailability;
+  useEffect(() => { if (!account || normalizedUsername === account.username || !/^[a-z0-9][a-z0-9-]{2,29}$/.test(normalizedUsername)) return; const timer = window.setTimeout(() => { fetch(`/api/account/username?username=${encodeURIComponent(normalizedUsername)}`).then((response) => response.json()).then((payload) => setUsernameAvailability(payload.available ? "available" : "taken")).catch(() => setUsernameAvailability("taken")); }, 350); return () => window.clearTimeout(timer); }, [account, normalizedUsername]);
+  async function saveProfile(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setSaving(true); setMessage(""); try { const response = await fetch("/api/account", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ username: username.trim().toLowerCase() }) }); const payload = await response.json(); if (!response.ok) throw new Error(payload.error); setAccount(payload.account); setUsername(payload.account.username); setMessage("Profile saved."); } catch (error) { setMessage(error instanceof Error ? error.message : "Could not save your profile."); } finally { setSaving(false); } }
+  async function signOut() { await createClient().auth.signOut(); router.replace("/"); router.refresh(); }
+  async function deleteAccount() { if (!window.confirm("Delete your CineCircle account and all associated data? This cannot be undone.")) return; const response = await fetch("/api/account", { method: "DELETE" }); if (!response.ok) { const payload = await response.json(); setMessage(payload.error || "Could not delete your account."); return; } router.replace("/"); router.refresh(); }
+  return <section className="account-grid"><div className="account-card"><p className="eyebrow">Account</p><div className="account-identity"><div className="avatar" aria-hidden="true">{account?.avatarUrl ? <img alt="" src={account.avatarUrl} /> : account?.fullName?.slice(0, 1).toUpperCase() || "•"}</div><div><h2>{account?.fullName || "Loading your account…"}</h2><p>@{account?.username || "…"}</p>{account?.username && <Link className="profile-link" href={`/people/${account.username}`}>View public profile →</Link>}</div></div><form className="profile-form" onSubmit={saveProfile}><label htmlFor="full-name">Full name<input id="full-name" disabled value={account?.fullName || ""} /><span className="identity-source">Provided by Google</span></label><label htmlFor="username">Username<input id="username" maxLength={30} onChange={(event) => { setUsername(event.target.value); setUsernameAvailability("checking"); }} value={username} /><span className={`username-status ${usernameState}`}>{usernameState === "checking" ? "Checking availability…" : usernameState === "available" ? "Username is available." : usernameState === "taken" ? "Choose a different valid username." : "3–30 lowercase letters, numbers, or hyphens."}</span></label><label htmlFor="email">Email<input id="email" disabled value={account?.email || ""} /><span className="identity-source">Provided by Google</span></label><button className="button button-dark" disabled={saving || !account || usernameState === "checking" || usernameState === "taken"} type="submit">{saving ? "Saving…" : "Save profile"}</button></form>{message && <p className="auth-message" role="status">{message}</p>}</div><div className="account-card account-safety"><p className="eyebrow">Session</p><h2>Signed in securely.</h2><p>Your account is authenticated through Google. CineCircle never stores a password for this sign-in method.</p><button className="button button-outline" onClick={signOut} type="button">Sign out <span>→</span></button><a className="export-data" href="/api/account/export">Export my data</a><button className="delete-account" onClick={deleteAccount} type="button">Delete account</button></div></section>;
+}

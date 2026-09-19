@@ -212,6 +212,7 @@ Movie provider identifiers should be unique per provider. Provider metadata shou
 - Import from existing watchlists.
 - Integrations with streaming services.
 - A recommendation engine that uses each user's likes, viewed status, and half-star ratings to suggest movies matching their taste.
+- An optional AI movie-suggestion assistant that turns a user's mood, theme, group, and viewing constraints into editable playlist ideas and TMDB search queries. It must use only data the user is authorized to access, keep personal preferences private, and treat TMDB as the source of truth for movie metadata.
 - Activity feed.
 - Real-time collaborative updates.
 - Playlist version history and moderation tools.
