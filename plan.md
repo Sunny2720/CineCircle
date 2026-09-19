@@ -6,6 +6,8 @@ Build CineCircle as a responsive social movie playlist application. The implemen
 
 This plan assumes a new application will be scaffolded in this repository. The recommended baseline stack is recorded below and should be validated during Phase 1. No provider API key or user secret should be committed to the repository.
 
+The planned MVP is explicitly non-commercial. Monetization, paid access, advertising, commercial licensing, and commercial deployment are outside this implementation scope.
+
 ## Recommended Technical Stack
 
 - **Application:** Next.js with TypeScript, using the App Router for public pages, authenticated screens, server route handlers, and server actions.
@@ -18,7 +20,7 @@ This plan assumes a new application will be scaffolded in this repository. The r
 - **Movie catalog:** TMDB accessed only from Next.js server routes through a provider adapter.
 - **Trailers:** YouTube official embedded player using trailer IDs returned by TMDB.
 - **Testing:** Vitest for domain and provider logic; Playwright for responsive browser workflows.
-- **Deployment:** Vercel for the Next.js application and Supabase managed services for database, authentication, and storage.
+- **Deployment:** Vercel Hobby for the Next.js application and Supabase managed services for database, authentication, and storage.
 - **CI:** GitHub Actions for linting, type checking, unit tests, migrations, and browser tests.
 
 ### Runtime Boundary
@@ -38,7 +40,7 @@ The recommendation engine should initially be a transparent TypeScript/PostgreSQ
 
 - Server-side authorization is the security boundary for every playlist and preference operation.
 - TMDB is an initial provider, not a permanent domain-model dependency.
-- TMDB metadata and images require attribution and must follow the applicable non-commercial or commercial agreement.
+- TMDB metadata and images require attribution and must remain within the provider's non-commercial usage terms for this MVP.
 - YouTube trailers must use the official embedded player and remain subject to YouTube policies.
 - User likes, viewed state, and ratings are private to the owning user unless a future social feature explicitly exposes them.
 - Ratings are nullable, range from 0.5 to 5.0, and use 0.5 increments.
@@ -68,9 +70,9 @@ Create the application structure, formatting and linting rules, environment conf
 
 Requirements: FR-010 and all non-functional requirements.
 
-### 1.3 Confirm provider and licensing gates
+### 1.3 Confirm non-commercial provider compliance
 
-Create TMDB and YouTube developer accounts, obtain API credentials through the intended environment secret store, confirm whether CineCircle is non-commercial or commercial, and document the required TMDB agreement and attribution treatment before production use.
+Create TMDB and YouTube developer accounts, obtain API credentials through the intended environment secret store, confirm that CineCircle remains non-commercial, and document the required attribution and data-retention treatment before production use.
 
 Requirements: FR-004, FR-012, NFR provider compliance.
 
@@ -231,9 +233,9 @@ Configure structured logs, error tracking, API timeout and retry budgets, rate-l
 
 Requirements: FR-010 and non-functional reliability/security requirements.
 
-### 8.4 Complete launch compliance review
+### 8.4 Complete non-commercial launch compliance review
 
-Before launch, verify TMDB attribution, commercial licensing status, YouTube API and embedded-player compliance, privacy disclosures, data retention/deletion behavior, and that no private playlist or preference data is indexed or leaked.
+Before launch, verify TMDB attribution and non-commercial usage, YouTube API and embedded-player compliance, privacy disclosures, data retention/deletion behavior, and that no private playlist or preference data is indexed or leaked.
 
 Requirements: FR-003, FR-007, FR-010, FR-011, FR-012, provider compliance requirements.
 
@@ -270,7 +272,7 @@ Requirements: FR-003, FR-007, FR-010, FR-011, FR-012, provider compliance requir
 - Database and hosting target
 - Authentication provider and account recovery mechanism
 - User cover-image storage provider
-- TMDB non-commercial versus commercial licensing status
+- Confirmation that the MVP remains non-commercial and does not monetize access, content, or recommendations
 - Whether trailer lookup comes only from TMDB video results or also uses YouTube Data API search
 - Exact collaboration invitation/request workflow
 - Recommendation cold-start and exclusion rules

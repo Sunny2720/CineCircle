@@ -190,7 +190,7 @@ Movie provider identifiers should be unique per provider. Provider metadata shou
 - Use pagination or lazy loading for large public playlist and movie results.
 - Keep movie data attribution and API usage compliant with the selected movie data provider.
 - Display required TMDB attribution when TMDB data or images are used.
-- Treat TMDB data as provider content: do not use it to train recommendation models, do not cache it longer than the provider permits, and obtain a commercial agreement before monetizing an application that uses TMDB content.
+- Treat TMDB data as provider content: do not use it to train recommendation models, do not cache it longer than the provider permits, and keep the MVP non-commercial.
 - Follow YouTube API and embedded-player terms when displaying trailers, including preserving YouTube branding and player controls.
 
 ## 8. MVP Success Criteria
